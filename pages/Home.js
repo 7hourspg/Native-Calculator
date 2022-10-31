@@ -1,82 +1,86 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  Button,
-} from "react-native";
-import React, { useState, useEffect } from "react";
+import { View, Text, Image, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-const Home = ({ navigation}) => {
- 
-  const [data, setData] = useState([]);
-  const Url =
-    "https://newsapi.org/v2/top-headlines?country=in&apiKey=8a48c369a3e943c8b4cda4612dc85c5b";
-
+import img from "../assets/sun.png";
+import Icon from "react-native-vector-icons/Feather";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+const Home = () => {
+  const [input, setinput] = useState("" || "Patna");
+  const [data, setData] = useState();
+  const { width, height } = Dimensions.get("window");
   useEffect(() => {
-    axios.get(Url).then((res) => setData(res.data.articles));
+    axios
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${input}&units=metric&appid=fc42849134f821fc21e4950fc9931cdc`
+      )
+      .then((res) => {
+        setData([res.data]);
+      });
+   
   }, []);
 
+  // timeConverter();
+  const timeConverterRise = ({ data }) => {
+    const time = new Date(data);
+
+    console.log(time);
+    return time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+  };
+  const timeConverterSet = ({ data }) => {
+    const time = new Date(data);
+
+    return time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+  };
+
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.inner_ctr}>
-          {data.map((item) => {
-            return (
-              <View style={styles.dta_ctr} key={item.title}>
-                <Image
-                  style={styles.image}
-                  source={{
-                    uri: `${item.urlToImage}`,
+    <View style={{ flex: 1, backgroundColor: "black" }}>
+      <Image
+        style={{ width: width, height: 300, marginTop: 20 }}
+        source={img}
+      />
+      <View>
+        {data?.map((item, i) => {
+          return (
+            <View key={i}>
+              <View style={{ alignItems: "center", marginBottom: 40 }}>
+                <Icon name="sun" size={50} color={"#E6CBA8"} />
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "500",
+                    fontSize: 20,
+                    marginTop: 10,
                   }}
-                />
-                <Text style={styles.title_txt}>{item.title}</Text>
-                <Button
-                  title="Read More"
-                  color="#841584"
-                  onPress={() => navigation.navigate("Article",{item})}
-                />
+                >
+                  Patna {item.main.temp}
+                </Text>
               </View>
-            );
-          })}
-        </View>
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  flexDirection: "row",
+                }}
+              >
+                <View style={{ alignItems: "center" }}>
+                  <Icon name="sunrise" size={50} color={"yellow"} />
+                  <Text style={{ color: "white" }}>
+                    {timeConverterRise({ data: item.sys.sunrise })}
+                  </Text>
+                </View>
+                <View style={{ alignItems: "center" }}>
+                  <Icon name="sunset" size={50} color={"yellow"} />
+                  <Text style={{ color: "white" }}>
+                    {timeConverterSet({ data: item.sys.sunset })}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          );
+        })}
       </View>
-    </ScrollView>
+    </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    // backgroundColor: "black",
-    flex:1
-  },
-  inner_ctr: {
-    // marginVertical: 20,
-    width: 400,
 
-    alignItems: "center",
-    backgroundColor: "black",
-  },
-  dta_ctr: {
-    flexDirection: "column",
-    minWidth: 400,
-    marginTop: 20,
-    backgroundColor: "black",
-  },
-  image: {
-    minWidth: 370,
-    minHeight: 270,
-    alignSelf: "center",
-    resizeMode: "center",
-  },
-  title_txt: {
-    fontSize: 20,
-    alignSelf: "flex-start",
-    // marginVertical: 10,
-    paddingBottom: 30,
-    color: "white",
-    marginHorizontal: 10,
-  },
-});
 export default Home;

@@ -1,34 +1,43 @@
-const Drawer = createDrawerNavigator();
-import "react-native-gesture-handler";
-
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import * as React from "react";
+import { Text, View } from "react-native";
+import Icon from "react-native-vector-icons/Entypo";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "./Home";
 import About from "./About";
-import { StatusBar, View } from "react-native";
 
-import SingleArticle from "./SingleArticle";
+const Tab = createBottomTabNavigator();
 
-function App() {
+export default function Index() {
   return (
     <>
-      <StatusBar />
-
-      <Drawer.Navigator
-        initialRouteName="Home"
+      <Tab.Navigator
         screenOptions={{
-          headerTitle: "NewsApp",
-          headerTitleAlign: "center",
-          headerTintColor: "white",
-          headerStyle: {
-            backgroundColor: "black",
-          },
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle:{backgroundColor:'black'},
+          tabBarInactiveTintColor:'grey',
+          tabBarActiveTintColor:'red'
         }}
       >
-        <Drawer.Screen name="Home" component={Home} options={{}} />
-        <Drawer.Screen name="About" component={About} />
-      </Drawer.Navigator>
-      
+        <Tab.Screen
+          name="Home"
+          component={Home}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="home" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="About"
+          component={About}
+          options={{tabBarBadge:3,tabBarBadgeStyle:{backgroundColor:'grey',color:'white'},
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="user" size={20} color={color}  />
+            ),
+          }}
+        />
+      </Tab.Navigator>
     </>
   );
 }
-export default App;
