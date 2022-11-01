@@ -1,153 +1,107 @@
-import { NavigationContainer } from "@react-navigation/native";
 import {
-  createStackNavigator,
-  TransitionSpecs,
-  HeaderStyleInterpolators,
-  CardStyleInterpolators,
-} from "@react-navigation/stack";
+  View,
+  Text,
+  Dimensions,
+  Image,
+  StyleSheet,
+  FlatList,
+  Animated,
+} from "react-native";
 import React from "react";
-import { Easing, StatusBar, StyleSheet, Text, View } from "react-native";
-import Home from "./pages/Home";
-import ScreenA from "./pages/ScreenA";
-import ScreenB from "./pages/ScreenB";
-import ScreenC from "./pages/ScreenC";
-import ScreenD from "./pages/ScreenD";
-import ScreenE from "./pages/ScreenE";
-
-const Stack = createStackNavigator();
-
-const config = {
-  animation: 'spring',
-  config: {
-    stiffness: 1000,
-    damping: 500,
-    mass: 3,
-    overshootClamping: true,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-  },
-};
-
-const closeConfig = {
-  animation: "timing",
-  config: {
-    duration: 200,
-    easing: Easing.linear,
-  },
-};
-
-const customTransition = {
-  gestureEnabled: true,
-  gestureDirection: "horizontal",
-  transitionSpec: {
-    open: TransitionSpecs.TransitionIOSSpec,
-    close: TransitionSpecs.TransitionIOSSpec,
-  },
-  cardStyleInterpolator: ({ current, next, layouts }) => {
-    return {
-      cardStyle: {
-        transform: [
-          {
-            translateX: current.progress.interpolate({
-              inputRange: [0, 1],
-              outputRange: [layouts.screen.width, 0],
-            }),
-          },
-          {
-            rotate: current.progress.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["8deg", "0deg"],
-            }),
-          },
-          {
-            scale: next
-              ? next.progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1],
-                })
-              : 1,
-          },
-        ],
-      },
-      opacity: current.opacity,
-    };
-  },
-};
-
-const AppStack = () => {
-  return (
-    <>
-      <StatusBar backgroundColor={'red'}/>
-      <Stack.Navigator
-        // apply for all screen
-        screenOptions={{
-          gestureEnabled: true,
-          gestureDirection: "horizontal",
-        }}
-   
-      >
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen
-          name="ScreenA"
-          component={ScreenA}
-          options={{
-            gestureDirection: "vertical",
-            transitionSpec: {
-              open: config,
-              close: closeConfig,
-            },
-            cardStyleInterpolator:
-              CardStyleInterpolators.forRevealFromBottomAndroid,
-          }}
-        />
-        <Stack.Screen
-          name="ScreenB"
-          component={ScreenB}
-          options={{
-            gestureDirection: "vertical",
-            transitionSpec: {
-              open: config,
-              close: closeConfig,
-            },
-            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-          }}
-        />
-        <Stack.Screen
-          name="ScreenC"
-          component={ScreenC}
-          options={{
-            gestureDirection: "vertical",
-            ...customTransition,
-          }}
-        />
-        <Stack.Screen
-          name="ScreenD"
-          component={ScreenD}
-          options={{
-            gestureDirection: "vertical",
-            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-          }}
-        />
-        <Stack.Screen
-          name="ScreenE"
-          component={ScreenE}
-          options={{
-            gestureDirection: "vertical-inverted",
-            cardStyleInterpolator:
-              CardStyleInterpolators.forRevealFromBottomAndroid,
-          }}
-        />
-      </Stack.Navigator>
-    </>
-  );
-};
+import react from "react";
 
 const App = () => {
+  const { width, height } = Dimensions.get("screen");
+  const Item_Width = width * 0.76;
+  const Item_Height = width * 1.47;
+  const Images = [
+    "https://images.unsplash.com/photo-1605092676920-8ac5ae40c7c8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=465&q=80",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
+    "https://images.unsplash.com/photo-1503656142023-618e7d1f435a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=467&q=80",
+  ];
+  const data = Images.map((image, index) => ({
+    key: String(index),
+    photo: image,
+  }));
+  const scrollX = React.useRef(new Animated.Value(0)).current;
   return (
-    <NavigationContainer>
-      <AppStack />
-    </NavigationContainer>
+    <View style={styles.container}>
+      <Animated.FlatList
+        data={data}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        pagingEnabled
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: true }
+        )}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item, index }) => {
+          const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+          ];
+          const translateX = scrollX.interpolate({
+            inputRange,
+            outputRange: [-width * 0.7, 0, width * 0.7],
+          });
+          return (
+            <View
+              style={{ width, justifyContent: "center", alignItems: "center" }}
+            >
+              <View
+                style={{
+                  borderRadius: 18,
+                  shadowColor: "red",
+                  shadowRadius: 30,
+                  shadowOpacity: 1,
+                  shadowOffset: {
+                    width: 0,
+                    height: 0,
+                  },
+                  padding: 12,
+                  backgroundColor: "white",
+                  elevation: 20,
+                }}
+              >
+                <View
+                  style={{
+                    width: Item_Width,
+                    height: Item_Height - 50,
+                    overflow: "hidden",
+                    alignItems: "center",
+                    borderRadius: 14,
+                  }}
+                >
+                  <Animated.Image
+                    source={{ uri: item.photo }}
+                    style={{
+                      width: Item_Width * 1.4,
+                      height: Item_Height,
+                      resizeMode: "cover",
+                      transform: [
+                        {
+                          translateX,
+                        },
+                      ],
+                    }}
+                  />
+                </View>
+              </View>
+            </View>
+          );
+        }}
+      />
+    </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+  },
+});
 export default App;
